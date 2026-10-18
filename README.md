@@ -1,7 +1,23 @@
-Array.prototype.last = function() {
-  if (this.length === 0) {
-    return -1;
-  } else {
-    return this[this.length - 1];
-  }
+/**
+ * @param {Object} object
+ * @param {Function} classFunction
+ * @return {boolean}
+ */
+var checkIfInstanceOf = function(obj, classFunction) {
+    while(obj!=null)
+    {
+        if(obj.constructor === classFunction)
+        {
+            return true;
+        }
+
+        obj = Object.getPrototypeOf(obj);
+
+    }
+
+    return false;
 };
+
+/**
+ * checkIfInstanceOf(new Date(), Date); // true
+ */
