@@ -1,23 +1,21 @@
 /**
- * @param {Object} object
- * @param {Function} classFunction
- * @return {boolean}
+ * @param {any[]} arr
+ * @param {number} depth
+ * @return {any[]}
  */
-var checkIfInstanceOf = function(obj, classFunction) {
-    while(obj!=null)
-    {
-        if(obj.constructor === classFunction)
-        {
-            return true;
-        }
+var flat = function(arr, depth) {
+  const stack = [...arr.map(item => [item, depth])];
+  const result = [];
 
-        obj = Object.getPrototypeOf(obj);
+  while (stack.length > 0) {
+    const [item, depth] = stack.pop();
 
+    if (Array.isArray(item) && depth > 0) {
+      stack.push(...item.map(subItem => [subItem, depth - 1]));
+    } else {
+      result.push(item);
     }
+  }
 
-    return false;
+  return result.reverse();
 };
-
-/**
- * checkIfInstanceOf(new Date(), Date); // true
- */
