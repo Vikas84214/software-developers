@@ -1,25 +1,31 @@
-const RES = Symbol("result");
+import java.util.concurrent.Semaphore;
 
-/**
- * @param {Function} fn
- */
-function memoize(fn) {
-    const globalCache = new Map();
+class Foo {
 
-    return (...params) => {
-        let currentCache = globalCache;
-        for(const param of params) {
-            if (!currentCache.has(param)) {
-                currentCache.set(param, new Map());
-            }
-            currentCache = currentCache.get(param);
-        }
+    final Semaphore hasFirstRun = new Semaphore(0);
+    final Semaphore hasSecondRun = new Semaphore(0);
 
-        if (currentCache.has(RES)) return currentCache.get(RES);
+    public void first(Runnable printFirst) throws InterruptedException {
+        printFirst.run();
+        hasFirstRun.release(); // Allows second() to run, and wakes it if it's sleeping.
+    }
 
-        const result = fn(...params);
+    public void second(Runnable printSecond) throws InterruptedException {
+        /*
+            hasFirstRun is initialized to 0. This means that if second() is executed
+            before first(), it can't get the lock and goes to sleep. In this case, it
+            will be waked up by first().
+            
+            If second() is executed after first(), then it can acquire the semaphore immediately
+            and execute its code.
+        */
+        hasFirstRun.acquire(); 
+        printSecond.run();
+        hasSecondRun.release();
+    }
 
-        currentCache.set(RES, result);
-        return result;
+    public void third(Runnable printThird) throws InterruptedException {
+        hasSecondRun.acquire(); // same logic as second()
+        printThird.run();
     }
 }
