@@ -1,31 +1,36 @@
-import java.util.concurrent.Semaphore;
 
-class Foo {
+import java.util.Arrays;
 
-    final Semaphore hasFirstRun = new Semaphore(0);
-    final Semaphore hasSecondRun = new Semaphore(0);
+class Solution {
+    public int findRadius(int[] houses, int[] heaters) {
 
-    public void first(Runnable printFirst) throws InterruptedException {
-        printFirst.run();
-        hasFirstRun.release(); // Allows second() to run, and wakes it if it's sleeping.
-    }
+        Arrays.sort(heaters);
 
-    public void second(Runnable printSecond) throws InterruptedException {
-        /*
-            hasFirstRun is initialized to 0. This means that if second() is executed
-            before first(), it can't get the lock and goes to sleep. In this case, it
-            will be waked up by first().
-            
-            If second() is executed after first(), then it can acquire the semaphore immediately
-            and execute its code.
-        */
-        hasFirstRun.acquire(); 
-        printSecond.run();
-        hasSecondRun.release();
-    }
+        int ans = 0;
 
-    public void third(Runnable printThird) throws InterruptedException {
-        hasSecondRun.acquire(); // same logic as second()
-        printThird.run();
+        for (int house : houses) {
+
+            int idx = Arrays.binarySearch(heaters, house);
+
+            if (idx >= 0) {
+                continue;
+            }
+
+            idx = -idx - 1;
+
+            int left = (idx > 0)
+                ? house - heaters[idx - 1]
+                : Integer.MAX_VALUE;
+
+            int right = (idx < heaters.length)
+                ? heaters[idx] - house
+                : Integer.MAX_VALUE;
+
+            int minDistance = Math.min(left, right);
+
+            ans = Math.max(ans, minDistance);
+        }
+
+        return ans;
     }
 }
