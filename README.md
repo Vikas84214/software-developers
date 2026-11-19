@@ -1,24 +1,19 @@
-
-import java.util.concurrent.Semaphore;
-class FooBar {
-    private int n;
-    private Semaphore foo = new Semaphore(1); 
-    private Semaphore bar = new Semaphore(0);
-    public FooBar(int n) {
-        this.n = n;
-    }
-    public void foo(Runnable printFoo) throws InterruptedException {
-        for (int i = 0; i < n; i++) {
-            foo.acquire();
-            printFoo.run();
-            bar.release();
-        }
-    }
-    public void bar(Runnable printBar) throws InterruptedException {
-        for (int i = 0; i < n; i++) {
-            bar.acquire();
-            printBar.run();
-            foo.release();
-        }
-    }
-}
+WITH first_login AS (
+    SELECT
+        player_id,
+        MIN(event_date) AS first_date
+    FROM activity
+    GROUP BY player_id
+)
+SELECT 
+    ROUND(
+        COUNT(
+            CASE
+                WHEN DATEDIFF(a.event_date, f.first_date) = 1 THEN 1
+            END
+        ) / COUNT(DISTINCT f.player_id),
+        2
+    ) AS fraction
+FROM first_login f
+LEFT JOIN activity a
+    ON f.player_id = a.player_id;
