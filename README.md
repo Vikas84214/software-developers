@@ -22,20 +22,7 @@ class FizzBuzz {
         }
     }
 
-    // printBuzz.run() outputs "buzz".
-    public void buzz(Runnable printBuzz) throws InterruptedException {
-        synchronized (this) {
-            while (i<=n) {
-                if (i%3!=0 && i%5==0) {
-                    printBuzz.run();
-                    i+=1;
-                    notifyAll();            
-                } else {
-                    wait();
-                }
-            }
-        }
-    }
+  
 
     // printFizzBuzz.run() outputs "fizzbuzz".
     public void fizzbuzz(Runnable printFizzBuzz) throws InterruptedException {
